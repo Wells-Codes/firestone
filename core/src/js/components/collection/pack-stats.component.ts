@@ -41,13 +41,6 @@ import { OverwolfService } from '../../services/overwolf.service';
 						class="icon-container"
 						[style.width.px]="cardWidth"
 						[style.height.px]="cardHeight"
-						[helpTooltip]="
-							'You received ' +
-							pack.totalObtained +
-							' ' +
-							pack.name +
-							' packs since you started playing Hearthstone'
-						"
 					>
 						<img
 							class="icon"
@@ -118,7 +111,7 @@ export class CollectionPackStatsComponent implements AfterViewInit {
 
 	private stateUpdater: EventEmitter<MainWindowStoreEvent>;
 
-	constructor(private readonly ow: OverwolfService, private readonly cdr: ChangeDetectorRef) {}
+	constructor(private readonly ow: OverwolfService) {}
 
 	async ngAfterViewInit() {
 		this.stateUpdater = this.ow.getMainWindow().mainWindowStoreUpdater;
@@ -146,31 +139,22 @@ export class CollectionPackStatsComponent implements AfterViewInit {
 		// console.debug('best poacks', orderedPacks);
 		this.bestPacks = orderedPacks.slice(0, 5);
 
-		this._packs = [];
-		if (!(this.cdr as ViewRef)?.destroyed) {
-			this.cdr.detectChanges();
-		}
-		setTimeout(() => {
-			this._packs = Object.values(BoosterType)
-				.filter((boosterId: BoosterType) => !isNaN(boosterId))
-				.filter((boosterId: BoosterType) => !EXCLUDED_BOOSTER_IDS.includes(boosterId))
-				.filter(
-					(boosterId: BoosterType) =>
-						!this.showOnlyBuyablePacks || !NON_BUYABLE_BOOSTER_IDS.includes(boosterId),
-				)
-				.map((boosterId: BoosterType) => ({
-					packType: boosterId,
-					totalObtained: this._inputPacks.find(p => p.packType === boosterId)?.totalObtained ?? 0,
-					unopened: 0,
-					name: boosterIdToBoosterName(boosterId),
-				}))
-				.filter(info => info)
-				.reverse();
-			this.totalPacks = this._packs.map(pack => pack.totalObtained).reduce((a, b) => a + b, 0);
-			if (!(this.cdr as ViewRef)?.destroyed) {
-				this.cdr.detectChanges();
-			}
-		}, 200);
+		this._packs = Object.values(BoosterType)
+			.filter((boosterId: BoosterType) => !isNaN(boosterId))
+			.filter((boosterId: BoosterType) => !EXCLUDED_BOOSTER_IDS.includes(boosterId))
+			.filter(
+				(boosterId: BoosterType) =>
+					!this.showOnlyBuyablePacks || !NON_BUYABLE_BOOSTER_IDS.includes(boosterId),
+			)
+			.map((boosterId: BoosterType) => ({
+				packType: boosterId,
+				totalObtained: this._inputPacks.find(p => p.packType === boosterId)?.totalObtained ?? 0,
+				unopened: 0,
+				name: boosterIdToBoosterName(boosterId),
+			}))
+			.filter(info => info)
+			.reverse();
+		this.totalPacks = this._packs.map(pack => pack.totalObtained).reduce((a, b) => a + b, 0);
 	}
 }
 
