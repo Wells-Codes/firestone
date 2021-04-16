@@ -9,6 +9,8 @@ import {
 } from '@angular/core';
 import { BoosterType } from '@firestone-hs/reference-data';
 import { PackResult } from '@firestone-hs/retrieve-pack-stats';
+import { combineLatest, Observable, ReplaySubject } from 'rxjs';
+import { map, startWith } from 'rxjs/operators';
 import { PackInfo } from '../../models/collection/pack-info';
 import { BinderState } from '../../models/mainwindow/binder-state';
 import { Preferences } from '../../models/preferences';
@@ -22,7 +24,7 @@ import { OverwolfService } from '../../services/overwolf.service';
 	template: `
 		<div class="pack-stats" scrollable>
 			<div class="header">
-				All-time packs ({{ totalPacks }})
+				All-time packs ({{ totalPacks$ | async }})
 				<preference-toggle
 					class="show-buyable-packs"
 					[ngClass]="{ 'active': showOnlyBuyablePacks }"
@@ -31,23 +33,16 @@ import { OverwolfService } from '../../services/overwolf.service';
 					helpTooltip="Show only the packs that can be bought in the shop, hiding all promotional / reward packs"
 				></preference-toggle>
 			</div>
-			<div class="packs-container" [ngClass]="{ 'empty': !_packs?.length }">
+			<div class="packs-container">
 				<div
 					class="pack-stat"
-					*ngFor="let pack of _packs; trackBy: trackByPackFn"
+					*ngFor="let pack of packs$ | async; trackBy: trackByPackFn"
 					[ngClass]="{ 'missing': !pack.totalObtained }"
 				>
 					<div
 						class="icon-container"
 						[style.width.px]="cardWidth"
 						[style.height.px]="cardHeight"
-						[helpTooltip]="
-							'You received ' +
-							pack.totalObtained +
-							' ' +
-							pack.name +
-							' packs since you started playing Hearthstone'
-						"
 					>
 						<img
 							class="icon"
@@ -84,28 +79,22 @@ export class CollectionPackStatsComponent implements AfterViewInit {
 	cardsOwnedActiveFilter: 'own' | 'dontown' | 'all';
 
 	@Input() set state(value: BinderState) {
-		if (value.packs === this._packs && value.packStats === this._packStats) {
-			return;
-		}
-
-		this._packStats = value?.packStats ?? [];
-		this._inputPacks = value.packs ?? [];
-		this.updateInfos();
+		this._state$.next(value);
 	}
 
 	@Input() set prefs(value: Preferences) {
-		if (!value || this.showOnlyBuyablePacks === value.collectionShowOnlyBuyablePacks) {
-			return;
-		}
-
-		this.showOnlyBuyablePacks = value.collectionShowOnlyBuyablePacks;
-		console.debug('updated buyable packs', this.showOnlyBuyablePacks);
-		this.updateInfos();
+		this._prefs$.next(value);
 	}
 
 	// @Input() set navigation(value: NavigationCollection) {
 	// 	// this._navigation = value;
 	// }
+
+	packs$: Observable<InternalPackInfo[]>;
+	totalPacks$: Observable<number>;
+
+	private _state$ = new ReplaySubject<BinderState>();
+	private _prefs$ = new ReplaySubject<Preferences>();
 
 	_inputPacks: readonly PackInfo[];
 	_packs: readonly InternalPackInfo[] = [];
@@ -118,7 +107,17 @@ export class CollectionPackStatsComponent implements AfterViewInit {
 
 	private stateUpdater: EventEmitter<MainWindowStoreEvent>;
 
-	constructor(private readonly ow: OverwolfService, private readonly cdr: ChangeDetectorRef) {}
+	constructor(private readonly ow: OverwolfService, private readonly cdr: ChangeDetectorRef) {
+		this.packs$ = combineLatest(this._prefs$, this._state$).pipe(
+			map(([prefs, state]) => this.getFilteredPacks(state.packs, prefs.collectionShowOnlyBuyablePacks)),
+			startWith([])
+		)
+
+		this.totalPacks$ = this.packs$.pipe(
+			map(packs => packs.map(pack => pack.totalObtained).reduce((a, b) => a + b, 0)),
+			startWith(0)
+		)
+	}
 
 	async ngAfterViewInit() {
 		this.stateUpdater = this.ow.getMainWindow().mainWindowStoreUpdater;
@@ -136,6 +135,26 @@ export class CollectionPackStatsComponent implements AfterViewInit {
 	// 	this.showOnlyBuyablePacks = value;
 	// 	this.updateInfos();
 	// };
+
+	private getFilteredPacks(packs: readonly PackInfo[], showOnlyBuyable: boolean): InternalPackInfo[] {
+		if(!packs) { return }
+
+		return Object.values(BoosterType)
+		.filter((boosterId: BoosterType) => !isNaN(boosterId))
+		.filter((boosterId: BoosterType) => !EXCLUDED_BOOSTER_IDS.includes(boosterId))
+		.filter(
+			(boosterId: BoosterType) =>
+				!showOnlyBuyable || !NON_BUYABLE_BOOSTER_IDS.includes(boosterId),
+		)
+		.map((boosterId: BoosterType) => ({
+			packType: boosterId,
+			totalObtained: packs.find(p => p.packType === boosterId)?.totalObtained ?? 0,
+			unopened: 0,
+			name: boosterIdToBoosterName(boosterId),
+		}))
+		.filter(info => info)
+		.reverse();
+	}
 
 	private updateInfos() {
 		if (!this._packs || !this._packStats) {
