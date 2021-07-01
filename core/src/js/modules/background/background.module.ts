@@ -52,6 +52,7 @@ import { BattlegroundsPersonalStatsHeroDetailsComponent } from '../../components
 import { BattlegroundsPersonalStatsHeroesComponent } from '../../components/battlegrounds/desktop/categories/battlegrounds-personal-stats-heroes.component';
 import { BattlegroundsPersonalStatsRatingComponent } from '../../components/battlegrounds/desktop/categories/battlegrounds-personal-stats-rating.component';
 import { BattlegroundsPersonalStatsStatsComponent } from '../../components/battlegrounds/desktop/categories/battlegrounds-personal-stats-stats.component';
+import { BattlegroundsSimulatorComponent } from '../../components/battlegrounds/desktop/categories/battlegrounds-simulator.component';
 import { BattlegroundsStatsHeroVignetteComponent } from '../../components/battlegrounds/desktop/categories/battlegrounds-stats-hero-vignette.component';
 import {
 	BgsGlobalValueComponent,
@@ -64,6 +65,8 @@ import { BgsWinrateStatsForHeroComponent } from '../../components/battlegrounds/
 import { BattlegroundsHeroRecordsBrokenComponent } from '../../components/battlegrounds/desktop/secondary/battlegrounds-hero-records-broken.component';
 import { BattlegroundsHeroesRecordsBrokenComponent } from '../../components/battlegrounds/desktop/secondary/battlegrounds-heroes-records-broken.component';
 import { BattlegroundsReplaysRecapComponent } from '../../components/battlegrounds/desktop/secondary/battlegrounds-replays-recap.component';
+import { BattlegroundsSimulatorDetailsEntityUpdateComponent } from '../../components/battlegrounds/desktop/secondary/battlegrounds-simulator-details-entity-update.component';
+import { BattlegroundsSimulatorDetailsComponent } from '../../components/battlegrounds/desktop/secondary/battlegrounds-simulator-details.component';
 import { BattlegroundsTierListComponent } from '../../components/battlegrounds/desktop/secondary/battlegrounds-tier-list.component';
 import { BgsHeroSelectionOverviewComponent } from '../../components/battlegrounds/hero-selection/bgs-hero-selection-overview.component';
 import { BgsHeroWarbandStatsComponent } from '../../components/battlegrounds/hero-selection/bgs-hero-warband-stats.component';
@@ -240,6 +243,7 @@ import { AppBootstrapService } from '../../services/app-bootstrap.service';
 import { BgsBattleSimulationService } from '../../services/battlegrounds/bgs-battle-simulation.service';
 import { BgsBestUserStatsService } from '../../services/battlegrounds/bgs-best-user-stats.service';
 import { BgsBuilderService } from '../../services/battlegrounds/bgs-builder.service';
+import { BgsCustomSimulationService } from '../../services/battlegrounds/bgs-custom-simulation-service.service';
 import { BgsGlobalStatsService } from '../../services/battlegrounds/bgs-global-stats.service';
 import { BgsInitService } from '../../services/battlegrounds/bgs-init.service';
 import { BgsRunStatsService } from '../../services/battlegrounds/bgs-run-stats.service';
@@ -495,6 +499,9 @@ const components = [
 		BattlegroundsStatsHeroVignetteComponent,
 		BattlegroundsPersonalStatsRatingComponent,
 		BattlegroundsPerfectGamesComponent,
+		BattlegroundsSimulatorComponent,
+		BattlegroundsSimulatorDetailsComponent,
+		BattlegroundsSimulatorDetailsEntityUpdateComponent,
 		BattlegroundsPersonalStatsStatsComponent,
 		BattlegroundsPersonalStatsHeroDetailsComponent,
 		BattlegroundsTierListComponent,
@@ -642,6 +649,7 @@ const components = [
 		BgsRunStatsService,
 		BgsBestUserStatsService,
 		RealTimeStatsService,
+		BgsCustomSimulationService,
 
 		AiDeckService,
 		SecretConfigService,
