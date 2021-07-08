@@ -1,5 +1,16 @@
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
-import { BattlegroundsAppState } from '../../../../../models/mainwindow/battlegrounds/battlegrounds-app-state';
+import {
+	AfterViewInit,
+	ChangeDetectionStrategy,
+	ChangeDetectorRef,
+	Component,
+	Input,
+	OnDestroy,
+	ViewRef,
+} from '@angular/core';
+import { Subscription } from 'rxjs';
+import { BgsStats } from '../../../../../models/battlegrounds/stats/bgs-stats';
+import { BattlegroundsPersonalStatsHeroDetailsCategory } from '../../../../../models/mainwindow/battlegrounds/categories/battlegrounds-personal-stats-hero-details-category';
+import { AppUiStoreService } from '../../../../../services/app-ui-store.service';
 
 @Component({
 	selector: 'bgs-hero-detailed-stats',
@@ -85,9 +96,9 @@ import { BattlegroundsAppState } from '../../../../../models/mainwindow/battlegr
 	`,
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BgsHeroDetailedStatsComponent {
-	_state: BattlegroundsAppState;
-	_heroId: string;
+export class BgsHeroDetailedStatsComponent implements AfterViewInit, OnDestroy {
+	// _state: BattlegroundsAppState;
+	// _heroId: string;
 
 	gamesPlayed: number;
 	averagePosition: number;
@@ -100,28 +111,48 @@ export class BgsHeroDetailedStatsComponent {
 	mmrGain: number;
 	mmrLoss: number;
 
-	@Input() set state(value: BattlegroundsAppState) {
-		if (value === this._state) {
-			return;
-		}
-		this._state = value;
-		this.updateValues();
+	// @Input() set state(value: BattlegroundsAppState) {
+	// 	if (value === this._state) {
+	// 		return;
+	// 	}
+	// 	this._state = value;
+	// 	this.updateValues();
+	// }
+
+	// @Input() set heroId(value: string) {
+	// 	if (value === this._heroId) {
+	// 		return;
+	// 	}
+	// 	this._heroId = value;
+	// 	this.updateValues();
+	// }
+
+	private state$: Subscription;
+
+	constructor(private readonly store: AppUiStoreService, private readonly cdr: ChangeDetectorRef) {}
+
+	ngAfterViewInit() {
+		this.state$ = this.store
+			.listen(
+				([state, nav]) => state.battlegrounds.stats,
+				([state, nav]) =>
+					(state.battlegrounds.findCategory(
+						nav.navigationBattlegrounds.selectedCategoryId,
+					) as BattlegroundsPersonalStatsHeroDetailsCategory)?.heroId,
+			)
+			.subscribe(([stats, heroId]) => this.updateInfo(stats, heroId));
 	}
 
-	@Input() set heroId(value: string) {
-		if (value === this._heroId) {
-			return;
-		}
-		this._heroId = value;
-		this.updateValues();
+	ngOnDestroy() {
+		this.state$.unsubscribe();
 	}
 
-	private updateValues() {
-		if (!this._state || !this._heroId) {
+	private updateInfo(stats: BgsStats, heroId: string) {
+		if (!stats || !heroId) {
 			return;
 		}
 
-		const stat = this._state.stats.heroStats?.find((stat) => stat.id === this._heroId);
+		const stat = stats.heroStats?.find((stat) => stat.id === heroId);
 		if (!stat) {
 			return;
 		}
@@ -136,6 +167,11 @@ export class BgsHeroDetailedStatsComponent {
 		this.netMmr = stat.playerAverageMmr;
 		this.mmrGain = stat.playerAverageMmrGain;
 		this.mmrLoss = stat.playerAverageMmrLoss;
+
+		// TODO: markForCheck instead?
+		if (!(this.cdr as ViewRef)?.destroyed) {
+			this.cdr.detectChanges();
+		}
 	}
 
 	buildValue(value: number, decimals = 2): string {

@@ -18,8 +18,7 @@ import { OverwolfService } from '../../../../services/overwolf.service';
 	template: `
 		<div class="battlegrounds-personal-stats-hero-details">
 			<bgs-player-capsule [player]="player" [displayTavernTier]="false">
-				<bgs-hero-detailed-stats [state]="_state.battlegrounds" [heroId]="_category?.heroId">
-				</bgs-hero-detailed-stats>
+				<bgs-hero-detailed-stats> </bgs-hero-detailed-stats>
 			</bgs-player-capsule>
 			<div class="stats">
 				<ul class="tabs">
