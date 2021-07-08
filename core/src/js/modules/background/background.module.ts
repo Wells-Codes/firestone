@@ -240,6 +240,7 @@ import { TemporaryResolutionOverrideService } from '../../services/achievement/t
 import { AdService } from '../../services/ad.service';
 import { ApiRunner } from '../../services/api-runner';
 import { AppBootstrapService } from '../../services/app-bootstrap.service';
+import { AppUiStoreService } from '../../services/app-ui-store.service';
 import { BgsBattleSimulationService } from '../../services/battlegrounds/bgs-battle-simulation.service';
 import { BgsBestUserStatsService } from '../../services/battlegrounds/bgs-best-user-stats.service';
 import { BgsBuilderService } from '../../services/battlegrounds/bgs-builder.service';
@@ -598,6 +599,7 @@ const components = [
 	providers: [
 		{ provide: ErrorHandler, useClass: SentryErrorHandler },
 		AppBootstrapService,
+		AppUiStoreService,
 		RealTimeNotificationService,
 		AdService,
 		MainWindowStoreService,

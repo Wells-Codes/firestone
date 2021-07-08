@@ -105,13 +105,13 @@ export class BattlegroundsPerfectGamesComponent implements AfterViewInit {
 	}
 
 	private areSimilar(first: BattlegroundsAppState, second: BattlegroundsAppState): boolean {
-		if (!arraysEqual(first.perfectGames, second.perfectGames)) {
+		if (!arraysEqual(first?.perfectGames, second?.perfectGames)) {
 			return false;
 		}
-		if (first.activeRankFilter !== second.activeRankFilter) {
+		if (first?.activeRankFilter !== second?.activeRankFilter) {
 			return false;
 		}
-		if (first.activeHeroFilter !== second.activeHeroFilter) {
+		if (first?.activeHeroFilter !== second?.activeHeroFilter) {
 			return false;
 		}
 		return true;

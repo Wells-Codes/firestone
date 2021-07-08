@@ -4,10 +4,13 @@ import {
 	ChangeDetectorRef,
 	Component,
 	EventEmitter,
-	Input,
+	OnDestroy,
+	ViewRef,
 } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { BgsFaceOffWithSimulation } from '../../../../models/battlegrounds/bgs-face-off-with-simulation';
-import { BattlegroundsAppState } from '../../../../models/mainwindow/battlegrounds/battlegrounds-app-state';
+import { BgsCustomSimulationState } from '../../../../models/mainwindow/battlegrounds/simulator/bgs-custom-simulation-state';
+import { AppUiStoreService } from '../../../../services/app-ui-store.service';
 import { BgsCustomSimulationChangeMinionRequestEvent } from '../../../../services/mainwindow/store/events/battlegrounds/simulator/bgs-custom-simulation-change-minion-request-event';
 import { BgsCustomSimulationMinionRemoveRequestEvent } from '../../../../services/mainwindow/store/events/battlegrounds/simulator/bgs-custom-simulation-minion-remove-request-event';
 import { BgsCustomSimulationUpdateMinionRequestEvent } from '../../../../services/mainwindow/store/events/battlegrounds/simulator/bgs-custom-simulation-update-minion-request-event';
@@ -43,25 +46,37 @@ import { ChangeMinionRequest } from '../../battles/bgs-battle-side.component';
 	`,
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BattlegroundsSimulatorComponent implements AfterViewInit {
-	@Input() set state(value: BattlegroundsAppState) {
-		if (value === this._state) {
-			return;
-		}
-		this._state = value;
-		this.updateInfo();
-	}
+export class BattlegroundsSimulatorComponent implements AfterViewInit, OnDestroy {
+	// @Input() set state(value: BattlegroundsAppState) {
+	// 	if (value === this._state) {
+	// 		return;
+	// 	}
+	// 	this._state = value;
+	// 	this.updateInfo();
+	// }
 
 	faceOff: BgsFaceOffWithSimulation;
 
-	private _state: BattlegroundsAppState;
+	// private _state: BattlegroundsAppState;
+	private state$: Subscription;
 
 	private stateUpdater: EventEmitter<MainWindowStoreEvent>;
 
-	constructor(private readonly ow: OverwolfService, private readonly cdr: ChangeDetectorRef) {}
+	constructor(
+		private readonly store: AppUiStoreService,
+		private readonly ow: OverwolfService,
+		private readonly cdr: ChangeDetectorRef,
+	) {}
 
 	ngAfterViewInit() {
 		this.stateUpdater = this.ow.getMainWindow().mainWindowStoreUpdater;
+		this.state$ = this.store
+			.listen((state) => state.battlegrounds.customSimulationState)
+			.subscribe((newState) => this.updateInfo(newState));
+	}
+
+	ngOnDestroy() {
+		this.state$.unsubscribe();
 	}
 
 	onPlayerPortraitChangeRequested() {
@@ -104,11 +119,11 @@ export class BattlegroundsSimulatorComponent implements AfterViewInit {
 		this.stateUpdater.next(new BgsCustomSimulationMinionRemoveRequestEvent('opponent', event.index));
 	}
 
-	private updateInfo() {
-		if (!this._state.customSimulationState) {
-			return;
+	private updateInfo(state: BgsCustomSimulationState) {
+		console.debug('received info in sim', state);
+		this.faceOff = state.faceOff;
+		if (!(this.cdr as ViewRef)?.destroyed) {
+			this.cdr.detectChanges();
 		}
-
-		this.faceOff = this._state.customSimulationState.faceOff;
 	}
 }
