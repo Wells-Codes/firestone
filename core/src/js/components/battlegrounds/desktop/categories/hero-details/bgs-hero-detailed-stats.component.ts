@@ -7,9 +7,9 @@ import {
 } from '@angular/core';
 import { combineLatest, Observable } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
-import { BgsHeroStat } from '../../../../../models/battlegrounds/stats/bgs-hero-stat';
-import { BattlegroundsFacade } from '../../../../../services/battlegrounds/battlegrounds.facade';
-import { AppUiStoreService } from '../../../../../services/app-ui-store.service';
+import { BgsHeroStat } from '@models/battlegrounds/stats/bgs-hero-stat';
+import { BattlegroundsFacade } from '@services/battlegrounds/battlegrounds.facade';
+import { AppUiStoreService } from '@services/app-ui-store.service';
 
 @Component({
 	selector: 'bgs-hero-detailed-stats',
