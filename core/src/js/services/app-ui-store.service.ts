@@ -20,6 +20,7 @@ export class UnsubscribeSubject<T> extends BehaviorSubject<T> {
 
 @Injectable()
 export class AppUiStoreService {
+	public allState$: Observable<[MainWindowState, NavigationState]>;
 	private initDone = false;
 	private listeners: Listener[] = [];
 
@@ -30,6 +31,7 @@ export class AppUiStoreService {
 
 	constructor(private readonly ow: OverwolfService) {
 		this.init();
+		this.allState$ = this.mainStore.asObservable();
 	}
 
 	public listen<S extends Selector<any>[]>(

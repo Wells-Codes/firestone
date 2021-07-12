@@ -241,6 +241,7 @@ import { AdService } from '../../services/ad.service';
 import { ApiRunner } from '../../services/api-runner';
 import { AppBootstrapService } from '../../services/app-bootstrap.service';
 import { AppUiStoreService } from '../../services/app-ui-store.service';
+import { BattlegroundsFacade } from '../../services/battlegrounds/battlegrounds.facade'
 import { BgsBattleSimulationService } from '../../services/battlegrounds/bgs-battle-simulation.service';
 import { BgsBestUserStatsService } from '../../services/battlegrounds/bgs-best-user-stats.service';
 import { BgsBuilderService } from '../../services/battlegrounds/bgs-builder.service';
@@ -600,6 +601,7 @@ const components = [
 		{ provide: ErrorHandler, useClass: SentryErrorHandler },
 		AppBootstrapService,
 		AppUiStoreService,
+		BattlegroundsFacade,
 		RealTimeNotificationService,
 		AdService,
 		MainWindowStoreService,
@@ -687,7 +689,7 @@ const components = [
 	// bootstrap: [],
 })
 export class AppModule implements DoBootstrap {
-	constructor(private resolver: ComponentFactoryResolver) {}
+	constructor(private resolver: ComponentFactoryResolver) { }
 
 	ngDoBootstrap(appRef: ApplicationRef) {
 		components.forEach((componentDef: Type<any>) => {
