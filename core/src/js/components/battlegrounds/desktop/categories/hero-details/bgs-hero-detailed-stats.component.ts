@@ -20,7 +20,8 @@ import { AppUiStoreService } from '@services/app-ui-store.service';
 	template: `
 		<div class="bgs-hero-detailed-stats">
 			<div class="title">General stats</div>
-			<div class="content" *ngIf="bgHeroStats$ | async as stats">
+			<!-- Example using the facade directly in the template -->
+			<div class="content" *ngIf="bgsFacade.bgsHeroDetailedStats$ | async as stats">
 				<div class="stat">
 					<div class="header">Games played</div>
 					<div class="values">
@@ -115,13 +116,14 @@ export class BgsHeroDetailedStatsComponent implements AfterViewInit {
 	// 	this.updateValues();
 	// }
 
-	constructor(private readonly bgsFacade: BattlegroundsFacade, private readonly store: AppUiStoreService, private readonly cdr: ChangeDetectorRef) { }
+	constructor(public readonly bgsFacade: BattlegroundsFacade, private readonly store: AppUiStoreService, private readonly cdr: ChangeDetectorRef) { }
 
 	ngAfterViewInit() {
-		this.bgHeroStats$ = combineLatest([this.bgsFacade.battlegroundStats$, this.bgsFacade.currentHeroId$]).pipe(
+		// Not being used in this component, but just demonstrating that it could work this way
+		combineLatest([this.bgsFacade.battlegroundStats$, this.bgsFacade.currentHeroId$]).pipe(
 			filter(([stats, heroId]) => !!stats && !!heroId),
 			map(([stats, heroId]) => stats.heroStats?.find((stat) => stat.id === heroId)),
-		)
+		).subscribe(heroStats => console.log('hero stats', heroStats))
 	}
 
 	buildValue(value: number, decimals = 2): string {

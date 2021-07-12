@@ -1,6 +1,6 @@
 import { EventEmitter, Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { filter, flatMap, tap } from 'rxjs/operators';
+import { BehaviorSubject, MonoTypeOperatorFunction, Observable, pipe } from 'rxjs';
+import { distinctUntilChanged, filter, flatMap, map, tap } from 'rxjs/operators';
 import { MainWindowState } from '../models/mainwindow/main-window-state';
 import { NavigationState } from '../models/mainwindow/navigation/navigation-state';
 import { MainWindowStoreEvent } from './mainwindow/store/events/main-window-store-event';
@@ -18,6 +18,15 @@ export class UnsubscribeSubject<T> extends BehaviorSubject<T> {
 	}
 }
 
+// Custom pipe to take fullState and map to selected state. Only emits when selected state changes and console logs the value
+export const selectMainState = <S extends Selector<any>>(selector: S): MonoTypeOperatorFunction<any> => {
+	return pipe(
+		map(fullState => selector(fullState)),
+		distinctUntilChanged(),
+		tap(state => console.log('selected state', state))
+	)
+}
+
 @Injectable()
 export class AppUiStoreService {
 	public allState$: Observable<[MainWindowState, NavigationState]>;
@@ -32,6 +41,14 @@ export class AppUiStoreService {
 	constructor(private readonly ow: OverwolfService) {
 		this.init();
 		this.allState$ = this.mainStore.asObservable();
+	}
+
+	// Does same thing as listen(), but returns an observable
+	public listen$<S extends Selector<any>[]>(...selectors: S): Observable<any> {
+		return this.mainStore.asObservable().pipe(
+			map(mainStore => selectors.map(selector => selector(mainStore))),
+			distinctUntilChanged()
+		)
 	}
 
 	public listen<S extends Selector<any>[]>(
