@@ -14,7 +14,12 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
-    "paths": {}
+    "paths": {
+      "@core/*": ["core/*"],
+      "@firestone/settings/feature/general": [
+        "libs/settings/feature/general/src/index.ts"
+      ]
+    }
   },
   "exclude": ["node_modules", "tmp"]
 }

@@ -123,6 +123,32 @@
       },
       "tags": [],
       "implicitDependencies": ["settings"]
+    },
+    "settings-feature-general": {
+      "projectType": "library",
+      "root": "libs/settings/feature/general",
+      "sourceRoot": "libs/settings/feature/general/src",
+      "prefix": "firestone",
+      "architect": {
+        "test": {
+          "builder": "@nrwl/jest:jest",
+          "outputs": ["coverage/libs/settings/feature/general"],
+          "options": {
+            "jestConfig": "libs/settings/feature/general/jest.config.js",
+            "passWithNoTests": true
+          }
+        },
+        "lint": {
+          "builder": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": [
+              "libs/settings/feature/general/src/**/*.ts",
+              "libs/settings/feature/general/src/**/*.html"
+            ]
+          }
+        }
+      },
+      "tags": []
     }
   }
 }
