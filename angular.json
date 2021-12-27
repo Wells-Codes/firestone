@@ -173,6 +173,32 @@
 				}
 			},
 			"tags": []
+		},
+		"shared-data-access-api-runner": {
+			"projectType": "library",
+			"root": "libs/shared/data-access/api-runner",
+			"sourceRoot": "libs/shared/data-access/api-runner/src",
+			"prefix": "firestone",
+			"architect": {
+				"test": {
+					"builder": "@nrwl/jest:jest",
+					"outputs": ["coverage/libs/shared/data-access/api-runner"],
+					"options": {
+						"jestConfig": "libs/shared/data-access/api-runner/jest.config.js",
+						"passWithNoTests": true
+					}
+				},
+				"lint": {
+					"builder": "@nrwl/linter:eslint",
+					"options": {
+						"lintFilePatterns": [
+							"libs/shared/data-access/api-runner/src/**/*.ts",
+							"libs/shared/data-access/api-runner/src/**/*.html"
+						]
+					}
+				}
+			},
+			"tags": []
 		}
 	}
 }
