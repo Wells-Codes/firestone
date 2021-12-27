@@ -20,6 +20,7 @@
 		"typeRoots": ["node_modules/@types", "@overwolf/types"],
 		"types": ["node", "jest"],
 		"paths": {
+			"@libs/*": ["../libs/*"],
 			"@models/*": ["src/js/models/*"],
 			"@services/*": ["src/js/services/*"]
 		}
@@ -30,5 +31,6 @@
 		"disableTypeScriptVersionCheck": true,
 		"enableIvy": false
 	},
+	"include": ["**/*", "../lib/**/*"],
 	"exclude": ["node_modules", "**/*.log"]
 }
